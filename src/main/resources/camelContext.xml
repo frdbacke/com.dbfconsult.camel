@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:camel="http://camel.apache.org/schema/spring"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<camel:camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+	<camel:camelContext id="camel"
+		xmlns="http://camel.apache.org/schema/spring">
 		<camel:route id="myRoute">
-			<camel:from uri="direct:start"/>
-			<camel:to uri="mock:start"/>
-			<camel:process ref="stopRouteProcessor"/>
-			<camel:to uri="mock:done"/>
+			<from uri="activemq:queue:DBFCONSULT.TEST.QUEUE?mapJmsMessage=false" />
+			<camel:to uri="mock:start" />
+			<camel:log message="${body}"/>
+			<!-- <camel:process ref="stopRouteProcessor" /> -->
+			<camel:to uri="mock:done" />
 		</camel:route>
 	</camel:camelContext>
+
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+		<property name="brokerURL" value="tcp://somehost:61616" />
+	</bean>
 
 	<bean id="stopRouteProcessor" class="com.dbfconsult.camel.stoproute.StopRouteProcessor">
 	</bean>
